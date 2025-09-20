@@ -3,11 +3,14 @@ import { GoogleGenAI } from "@google/genai";
 import { type FormData, ShayarStyle } from '../types';
 import { PERSONAL_RELATIONSHIPS } from "../constants";
 
-if (!process.env.API_KEY) {
-  throw new Error("API_KEY environment variable not set");
+// FIX: Switched to `process.env.API_KEY` to correctly access environment variables per the coding guidelines.
+const apiKey = process.env.API_KEY;
+
+if (!apiKey) {
+  throw new Error("API_KEY environment variable not set. Please check your .env file or Vercel environment variables.");
 }
 
-const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
+const ai = new GoogleGenAI({ apiKey });
 
 const generatePrompt = (data: FormData): string => {
   let languageRule = `The entire message must be written in **${data.language}**.`;
@@ -72,7 +75,8 @@ export const generateRelationshipMessageStream = async (data: FormData): Promise
     const prompt = generatePrompt(data);
     const response = await ai.models.generateContentStream({
       model: 'gemini-2.5-flash',
-      contents: [{ parts: [{ text: prompt }] }],
+      // FIX: Simplified `contents` to pass a string directly, aligning with Gemini API guidelines for single text prompts.
+      contents: prompt,
     });
     
     async function* stream() {
