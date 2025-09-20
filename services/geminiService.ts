@@ -1,13 +1,15 @@
 import { GoogleGenAI } from "@google/genai";
-// FIX: Imported `ShayarStyle` from `types.ts` where it is defined, instead of from `constants.ts` which does not export it.
 import { type FormData, ShayarStyle } from '../types';
 import { PERSONAL_RELATIONSHIPS } from "../constants";
 
-// FIX: Switched to `process.env.API_KEY` to correctly access environment variables per the coding guidelines.
+// FIX: Switched from `import.meta.env.VITE_API_KEY` to `process.env.API_KEY` to resolve
+// the TypeScript error and align with the Gemini API coding guidelines.
 const apiKey = process.env.API_KEY;
 
 if (!apiKey) {
-  throw new Error("API_KEY environment variable not set. Please check your .env file or Vercel environment variables.");
+  // This error will be thrown if the API_KEY is not set in the environment.
+  console.error("API_KEY environment variable not set.");
+  throw new Error("Application is not configured correctly. Missing API Key. Please ensure the API_KEY is set in your environment settings.");
 }
 
 const ai = new GoogleGenAI({ apiKey });
@@ -75,7 +77,6 @@ export const generateRelationshipMessageStream = async (data: FormData): Promise
     const prompt = generatePrompt(data);
     const response = await ai.models.generateContentStream({
       model: 'gemini-2.5-flash',
-      // FIX: Simplified `contents` to pass a string directly, aligning with Gemini API guidelines for single text prompts.
       contents: prompt,
     });
     
