@@ -2,18 +2,6 @@ import { GoogleGenAI } from "@google/genai";
 import { type FormData, ShayarStyle } from '../types';
 import { PERSONAL_RELATIONSHIPS } from "../constants";
 
-// FIX: Switched from `import.meta.env.VITE_API_KEY` to `process.env.API_KEY` to resolve
-// the TypeScript error and align with the Gemini API coding guidelines.
-const apiKey = process.env.API_KEY;
-
-if (!apiKey) {
-  // This error will be thrown if the API_KEY is not set in the environment.
-  console.error("API_KEY environment variable not set.");
-  throw new Error("Application is not configured correctly. Missing API Key. Please ensure the API_KEY is set in your environment settings.");
-}
-
-const ai = new GoogleGenAI({ apiKey });
-
 const generatePrompt = (data: FormData): string => {
   let languageRule = `The entire message must be written in **${data.language}**.`;
   if (data.language === 'Hindi') {
@@ -74,6 +62,16 @@ Please generate the personalized message now based on these details, ensuring it
 };
 
 export const generateRelationshipMessageStream = async (data: FormData): Promise<AsyncGenerator<string>> => {
+    const apiKey = process.env.API_KEY;
+
+    if (!apiKey) {
+      // This user-friendly error will be shown in the UI instead of crashing the app.
+      const userFriendlyError = "Configuration Error: The API Key is missing. Please ensure the API_KEY is set correctly in your project's environment variables on Vercel.";
+      console.error(userFriendlyError);
+      throw new Error(userFriendlyError);
+    }
+
+    const ai = new GoogleGenAI({ apiKey });
     const prompt = generatePrompt(data);
     const response = await ai.models.generateContentStream({
       model: 'gemini-2.5-flash',
