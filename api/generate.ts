@@ -70,9 +70,10 @@ Please generate the personalized message now based on these details, ensuring it
 // The main handler for the serverless function
 export default async function handler(req: Request) {
   try {
-    const apiKey = process.env.VITE_API_KEY;
+    const apiKey = process.env.API_KEY;
     if (!apiKey) {
-      return new Response("Configuration Error: API Key is missing on the server. Please check your Vercel environment variables and redeploy.", { status: 500 });
+      // This new, more helpful error message tells you exactly what to do.
+      return new Response("Configuration Error: The 'API_KEY' environment variable was not found on the server. Please go to your Vercel project's 'Settings' > 'Environment Variables' and add a variable named API_KEY with your Gemini API key. Then, you must redeploy your project for the change to take effect.", { status: 500 });
     }
 
     if (req.method !== 'POST') {
